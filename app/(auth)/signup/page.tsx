@@ -1,6 +1,60 @@
-import Link from 'next/link'
+'use client';
+
+import { useActionState } from 'react';
+import { useRouter } from 'next/navigation';
+import Button from '@/app/components/ui/Button';
+import {
+  Form,
+  FormGroup,
+  FormLabel,
+  FormInput,
+  FormError,
+} from '@/app/components/ui/Form';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { signUp, ActionResponse } from '@/app/actions/auth';
+
+const initialState: ActionResponse = {
+  success: false,
+  message: '',
+  errors: undefined,
+};
 
 export default function SignUpPage() {
+  const router = useRouter();
+
+  const [state, formAction, isPending] = useActionState(
+    async (
+      prevState: ActionResponse,
+      formData: FormData
+    ): Promise<ActionResponse> => {
+      try {
+        const result = await signUp(formData);
+
+        if (result.success) {
+          toast.success('Account created successfully');
+          router.push('/dashboard');
+        }
+
+        return {
+          success: result.success,
+          message: result.message,
+          errors:
+            typeof result.errors === 'string'
+              ? { general: [result.errors] }
+              : result.errors,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: (error as Error).message || 'An error occurred',
+          errors: undefined,
+        };
+      }
+    },
+    initialState
+  );
+
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50 dark:bg-[#121212]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -28,5 +82,5 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
