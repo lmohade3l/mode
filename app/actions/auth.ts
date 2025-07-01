@@ -56,7 +56,7 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
       };
     }
 
-    const user = await getUserByEmail();
+    const user = await getUserByEmail(data.email);
     if (!user) {
       return {
         success: false,
@@ -97,7 +97,7 @@ export async function signUp(formData: FormData) {
     const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
-      confirmPassword: formData.get('conformPassword') as string,
+      confirmPassword: formData.get('confirmPassword') as string,
     };
 
     const validationResult = SignUpSchema.safeParse(data);
